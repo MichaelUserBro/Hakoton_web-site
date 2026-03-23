@@ -13,5 +13,5 @@ def update_user_points(sender, instance, created, **kwargs):
     if instance.status:
         user = instance.user
         # Прибавляем баллы из связанного мероприятия
-        user.points = F('points') + instance.event.points_award
+        user.points = F('points') + instance.event.reward_points
         user.save()

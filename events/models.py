@@ -2,11 +2,12 @@ from django.db import models
 from django.conf import settings
 
 class Event(models.Model):
+    # Добавь это поле внутрь класса Event
     title = models.CharField(max_length=200, verbose_name="Название мероприятия")
     description = models.TextField(verbose_name="Описание")
     date = models.DateTimeField(verbose_name="Дата и время проведения")
     location = models.CharField(max_length=255, verbose_name="Место проведения")
-    points_award = models.PositiveIntegerField(default=10, verbose_name="Баллы за участие")
+    reward_points = models.PositiveIntegerField(default=10, verbose_name="Баллы за участие")
     
     # Связь с организатором (пользователем)
     organizer = models.ForeignKey(
