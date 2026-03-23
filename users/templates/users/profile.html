@@ -1,0 +1,6 @@
+<h1>Личный кабинет</h1>
+<p>Привет, {{ user.username }}!</p>
+<p>Твоя роль: {{ user.get_role_display }}</p>
+<p>Твои баллы: <strong>{{ user.points }}</strong></p>
+
+<a href="{% url 'admin:index' %}">В админку (для тестов)</a>
