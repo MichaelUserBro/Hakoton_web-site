@@ -4,5 +4,6 @@ from . import views
 app_name = 'events'
 
 urlpatterns = [
-    # Пока оставим пустым, вернемся сюда на Шаге Б
+    # Главная страница приложения events
+    path('', views.event_list, name='event_list'),
 ]

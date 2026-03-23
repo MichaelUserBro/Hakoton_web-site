@@ -1,0 +1,37 @@
+{% extends "base.html" %} {# Если у вас есть базовый шаблон, если нет - удали эту строку #}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Предстоящие мероприятия</h1>
+    
+    <div class="row">
+        {% for event in events %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ event.title }}</h5>
+                    <p class="card-text text-muted">{{ event.description|truncatewords:20 }}</p>
+                    <ul class="list-unstyled">
+                        <li><strong>📍 Место:</strong> {{ event.location }}</li>
+                        <li><strong>📅 Дата:</strong> {{ event.date|date:"d.m.Y H:i" }}</li>
+                        <li><strong>🎁 Бонусы:</strong> 
+                            <span class="badge bg-success">+{{ event.reward_points }} баллов</span>
+                            {% if event.bonus_info %}
+                                <br><small class="text-muted">{{ event.bonus_info }}</small>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="#" class="btn btn-outline-primary w-100">Записаться</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">Мероприятий пока не запланировано. Загляните позже!</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
