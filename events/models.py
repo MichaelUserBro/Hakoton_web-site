@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 
 class Event(models.Model):
+    # Добавь это поле внутрь класса Event
+    bonus_type = models.CharField(max_length=100, blank=True, verbose_name="Дополнительный бонус (мерч, билеты)")
     title = models.CharField(max_length=200, verbose_name="Название мероприятия")
     description = models.TextField(verbose_name="Описание")
     date = models.DateTimeField(verbose_name="Дата и время проведения")
