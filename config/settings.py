@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     
 
     'users',
-    'events',
+    'events.apps.EventsConfig',
     'analytics',
     
     'crispy_forms',
