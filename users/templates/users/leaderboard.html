@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Топ-100 Студентов</title>
+</head>
+<body>
+    <h1>Рейтинг лучших студентов</h1>
+    
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Место</th>
+                <th>Имя пользователя</th>
+                <th>Количество баллов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in users_top %}
+            <tr>
+                <td>{{ forloop.counter }}</td> <td>{{ student.username }}</td>
+                <td>{{ student.points }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">Студентов пока нет в базе.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="{% url 'users:profile' %}"> Перейти в мой профиль</a>
+</body>
+</html>
