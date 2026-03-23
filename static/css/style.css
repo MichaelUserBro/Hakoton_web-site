@@ -1,0 +1,9 @@
+/* Минимальный стиль для проверки */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    text-transform: uppercase;
+}
