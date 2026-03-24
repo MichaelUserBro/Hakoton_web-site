@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Event, Participation
+from .forms import EventForm
 
 # 1. Список всех мероприятий
 def event_list(request):
@@ -40,3 +41,19 @@ def join_event(request, pk):
         messages.info(request, 'Вы уже записаны на это мероприятие.')
     
     return redirect('events:event_detail', pk=pk)
+
+
+@login_required
+def event_create(request):
+    if request.method == 'POST':
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.organizer = request.user  # Назначаем текущего пользователя организатором
+            event.save()
+            messages.success(request, 'Мероприятие успешно создано!')
+            return redirect('events:event_detail', pk=event.pk)
+    else:
+        form = EventForm()
+    
+    return render(request, 'events/event_form.html', {'form': form})
