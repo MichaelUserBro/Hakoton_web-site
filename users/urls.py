@@ -20,4 +20,6 @@ urlpatterns = [
     path('organizers/', views.organizers_list_view, name='organizers_list'),
 
     path('organizer/<int:pk>/', views.organizer_detail_view, name='organizer_detail'),
+
+    path('export-pdf/<int:user_id>/', views.export_pdf_achievements, name='export_pdf'),
 ]

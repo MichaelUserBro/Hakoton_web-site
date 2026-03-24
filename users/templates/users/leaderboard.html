@@ -36,18 +36,35 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
-                            <tr><th class="text-center">#</th><th>Участник</th><th class="text-center">💻 IT</th><th class="text-center">🤝 Соц.</th><th class="text-center">📊 Проекты</th><th class="text-center">📸 Медиа</th><th class="text-center">🔥 Сумма</th></tr>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Участник</th>
+                                <th class="text-center">💻 IT</th>
+                                <th class="text-center">🤝 Соц.</th>
+                                <th class="text-center">📊 Проекты</th>
+                                <th class="text-center">📸 Медиа</th>
+                                <th class="text-center">🔥 Сумма</th>
+                                {% if request.user.role == 'inspector' %}<th class="text-center">📄 Паспорт</th>{% endif %}
+                            </tr>
                         </thead>
                         <tbody>
                             {% for p in users_top %}
                             <tr {% if p == request.user %}class="table-info"{% endif %}>
                                 <td class="text-center fw-bold">{{ forloop.counter }}</td>
                                 <td><strong>{{ p.get_full_name|default:p.username }}</strong></td>
-                                <td class="text-center">{{ p.points_it }}</td><td class="text-center">{{ p.points_social }}</td><td class="text-center">{{ p.points_project }}</td><td class="text-center">{{ p.points_media }}</td>
+                                <td class="text-center">{{ p.points_it }}</td>
+                                <td class="text-center">{{ p.points_social }}</td>
+                                <td class="text-center">{{ p.points_project }}</td>
+                                <td class="text-center">{{ p.points_media }}</td>
                                 <td class="text-center"><span class="badge bg-success">{{ p.points }}</span></td>
+                                {% if request.user.role == 'inspector' %}
+                                <td class="text-center">
+                                    <a href="{% url 'users:export_pdf' p.id %}" class="btn btn-sm btn-outline-danger">PDF</a>
+                                </td>
+                                {% endif %}
                             </tr>
                             {% empty %}
-                            <tr><td colspan="7" class="text-center p-4">Пусто</td></tr>
+                            <tr><td colspan="{% if request.user.role == 'inspector' %}8{% else %}7{% endif %}" class="text-center p-4">Пусто</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -60,13 +77,27 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
-                            <tr><th class="text-center">#</th><th>Участник</th><th class="text-center">Баллы IT</th></tr>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Участник</th>
+                                <th class="text-center">Баллы IT</th>
+                                {% if request.user.role == 'inspector' %}<th class="text-center">📄 Паспорт</th>{% endif %}
+                            </tr>
                         </thead>
                         <tbody>
                             {% for p in users_it %}
-                            <tr><td class="text-center">{{ forloop.counter }}</td><td>{{ p.get_full_name|default:p.username }}</td><td class="text-center"><span class="badge bg-info">{{ p.points_it }}</span></td></tr>
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ p.get_full_name|default:p.username }}</td>
+                                <td class="text-center"><span class="badge bg-info">{{ p.points_it }}</span></td>
+                                {% if request.user.role == 'inspector' %}
+                                <td class="text-center">
+                                    <a href="{% url 'users:export_pdf' p.id %}" class="btn btn-sm btn-outline-danger">PDF</a>
+                                </td>
+                                {% endif %}
+                            </tr>
                             {% empty %}
-                            <tr><td colspan="3" class="text-center p-4">Нет данных</td></tr>
+                            <tr><td colspan="{% if request.user.role == 'inspector' %}4{% else %}3{% endif %}" class="text-center p-4">Нет данных</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -79,13 +110,27 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
-                            <tr><th class="text-center">#</th><th>Участник</th><th class="text-center">Баллы Соц.</th></tr>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Участник</th>
+                                <th class="text-center">Баллы Соц.</th>
+                                {% if request.user.role == 'inspector' %}<th class="text-center">📄 Паспорт</th>{% endif %}
+                            </tr>
                         </thead>
                         <tbody>
                             {% for p in users_social %}
-                            <tr><td class="text-center">{{ forloop.counter }}</td><td>{{ p.get_full_name|default:p.username }}</td><td class="text-center"><span class="badge bg-warning text-dark">{{ p.points_social }}</span></td></tr>
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ p.get_full_name|default:p.username }}</td>
+                                <td class="text-center"><span class="badge bg-warning text-dark">{{ p.points_social }}</span></td>
+                                {% if request.user.role == 'inspector' %}
+                                <td class="text-center">
+                                    <a href="{% url 'users:export_pdf' p.id %}" class="btn btn-sm btn-outline-danger">PDF</a>
+                                </td>
+                                {% endif %}
+                            </tr>
                             {% empty %}
-                            <tr><td colspan="3" class="text-center p-4">Нет данных</td></tr>
+                            <tr><td colspan="{% if request.user.role == 'inspector' %}4{% else %}3{% endif %}" class="text-center p-4">Нет данных</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -98,13 +143,27 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
-                            <tr><th class="text-center">#</th><th>Участник</th><th class="text-center">Баллы Проекты</th></tr>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Участник</th>
+                                <th class="text-center">Баллы Проекты</th>
+                                {% if request.user.role == 'inspector' %}<th class="text-center">📄 Паспорт</th>{% endif %}
+                            </tr>
                         </thead>
                         <tbody>
                             {% for p in users_project %}
-                            <tr><td class="text-center">{{ forloop.counter }}</td><td>{{ p.get_full_name|default:p.username }}</td><td class="text-center"><span class="badge bg-primary">{{ p.points_project }}</span></td></tr>
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ p.get_full_name|default:p.username }}</td>
+                                <td class="text-center"><span class="badge bg-primary">{{ p.points_project }}</span></td>
+                                {% if request.user.role == 'inspector' %}
+                                <td class="text-center">
+                                    <a href="{% url 'users:export_pdf' p.id %}" class="btn btn-sm btn-outline-danger">PDF</a>
+                                </td>
+                                {% endif %}
+                            </tr>
                             {% empty %}
-                            <tr><td colspan="3" class="text-center p-4">Нет данных</td></tr>
+                            <tr><td colspan="{% if request.user.role == 'inspector' %}4{% else %}3{% endif %}" class="text-center p-4">Нет данных</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -117,13 +176,27 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
-                            <tr><th class="text-center">#</th><th>Участник</th><th class="text-center">Баллы Медиа</th></tr>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th>Участник</th>
+                                <th class="text-center">Баллы Медиа</th>
+                                {% if request.user.role == 'inspector' %}<th class="text-center">📄 Паспорт</th>{% endif %}
+                            </tr>
                         </thead>
                         <tbody>
                             {% for p in users_media %}
-                            <tr><td class="text-center">{{ forloop.counter }}</td><td>{{ p.get_full_name|default:p.username }}</td><td class="text-center"><span class="badge bg-secondary">{{ p.points_media }}</span></td></tr>
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ p.get_full_name|default:p.username }}</td>
+                                <td class="text-center"><span class="badge bg-secondary">{{ p.points_media }}</span></td>
+                                {% if request.user.role == 'inspector' %}
+                                <td class="text-center">
+                                    <a href="{% url 'users:export_pdf' p.id %}" class="btn btn-sm btn-outline-danger">PDF</a>
+                                </td>
+                                {% endif %}
+                            </tr>
                             {% empty %}
-                            <tr><td colspan="3" class="text-center p-4">Нет данных</td></tr>
+                            <tr><td colspan="{% if request.user.role == 'inspector' %}4{% else %}3{% endif %}" class="text-center p-4">Нет данных</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

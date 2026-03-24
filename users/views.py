@@ -181,3 +181,33 @@ def organizer_detail_view(request, pk):
         'organizer': organizer,
         'reviews': reviews
     })
+
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+
+def export_pdf_achievements(request, user_id):
+    # Проверка прав: только инспектор может скачивать чужие паспорта
+    if request.user.role != 'inspector':
+        raise PermissionDenied
+
+    # Получаем того пользователя, чей паспорт печатаем
+    target_user = get_object_or_404(User, id=user_id)
+    
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    # В коде генерации PDF везде замените 'user' на 'target_user'
+    # Например:
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, height - 160, f"Holder: {target_user.get_full_name() or target_user.username}")
+    
+    # ... (весь остальной код PDF, где используется target_user.points и т.д.) ...
+
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    
+    filename = f"passport_{target_user.username}.pdf"
+    return HttpResponse(buffer, content_type='application/pdf', 
+                        headers={'Content-Disposition': f'attachment; filename="{filename}"'})
