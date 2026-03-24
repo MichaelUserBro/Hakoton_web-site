@@ -11,3 +11,4 @@ def event_detail(request, pk):
     # Находим событие по первичному ключу (pk) или выдаем 404, если его нет
     event = get_object_or_404(Event, pk=pk)
     return render(request, 'events/event_detail.html', {'event': event})
+

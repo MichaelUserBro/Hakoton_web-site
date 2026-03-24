@@ -1,6 +1,47 @@
-<h1>Личный кабинет</h1>
-<p>Привет, {{ user.username }}!</p>
-<p>Твоя роль: {{ user.get_role_display }}</p>
-<p>Твои баллы: <strong>{{ user.points }}</strong></p>
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4 col-md-5">
+        <div class="card shadow-sm p-4 text-center">
+            <img src="{{ user.profile.avatar.url|default:'https://via.placeholder.com/120' }}" class="rounded-circle mx-auto mb-3">
+            <h3>{{ user.get_full_name|default:user.username }}</h3>
+            <span class="badge bg-primary mb-3">{{ user.profile.direction|default:"Участник" }}</span>
 
-<a href="{% url 'admin:index' %}">В админку (для тестов)</a>
+            <div class="p-3 bg-light rounded-3">
+                <small class="text-muted d-block">Ваш рейтинг</small>
+                <div class="rating-number text-primary">{{ user.profile.score|default:"0" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-md-7">
+        <div class="card shadow-sm p-4 mb-4">
+            <h4 class="mb-4">Прогресс до следующего уровня</h4>
+            {% if next_level %}
+            <div class="alert alert-warning border-0">
+                ⭐ Вам осталось набрать <strong>{{ points_to_next }}</strong> баллов
+            </div>
+            <div class="progress mb-2" style="height: 30px; border-radius: 10px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress_percent }}%">{{ progress_percent }}%</div>
+            </div>
+            {% else %}
+            <div class="alert alert-success border-0">Вы достигли максимального уровня!</div>
+            {% endif %}
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <h5 class="mb-3">Последние активности</h5>
+            <div class="list-group list-group-flush">
+                {% for activity in activities %}
+                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span>{{ activity.event_name }}</span>
+                    <span class="badge bg-success">+{{ activity.points }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted">У вас пока нет активностей.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
