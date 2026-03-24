@@ -22,8 +22,9 @@
                         </li>
                     </ul>
                 </div>
-                <div class="card-footer bg-transparent border-top-0">
-                    <a href="#" class="btn btn-outline-primary w-100">Записаться</a>
+                <div class="card-footer bg-transparent border-top-0 d-flex gap-2">
+                    <a href="#" class="btn btn-outline-primary flex-grow-1">Записаться</a>
+                    <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-primary flex-grow-1">Подробнее</a>
                 </div>
             </div>
         </div>
