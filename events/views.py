@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Event
+from django.contrib import messages
 
 def event_list(request):
     # Получаем только активные мероприятия, сортируем по дате (ближайшие сверху)
@@ -8,9 +9,20 @@ def event_list(request):
 
 
 def event_detail(request, pk):
-    # Находим событие по первичному ключу (pk) или выдаем 404, если его нет
     event = get_object_or_404(Event, pk=pk)
-    return render(request, 'events/event_detail.html', {'event': event})
+    participation = None
+    is_joined = False
+
+    if request.user.is_authenticated:
+        # Пытаемся найти запись пользователя на это событие
+        participation = Participation.objects.filter(user=request.user, event=event).first()
+        is_joined = participation is not None
+
+    return render(request, 'events/event_detail.html', {
+        'event': event,
+        'is_joined': is_joined,
+        'participation': participation  # Передаем объект участия в шаблон
+    })
 
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
@@ -20,8 +32,13 @@ from .models import Event, Participation
 def join_event(request, pk):
     event = get_object_or_404(Event, pk=pk)
     
-    # Создаем запись об участии, если её еще нет (get_or_create защищает от дублей)
-    Participation.objects.get_or_create(user=request.user, event=event)
+    participation, created = Participation.objects.get_or_create(user=request.user, event=event)
     
-    # После записи возвращаем пользователя на страницу этого мероприятия
+    if created:
+        # 2. Добавляем зеленое уведомление об успехе
+        messages.success(request, f'Вы успешно записаны на мероприятие "{event.title}"!')
+    else:
+        # 3. Добавляем желтое уведомление, если человек уже нажал кнопку второй раз
+        messages.info(request, 'Вы уже записаны на это мероприятие.')
+    
     return redirect('events:event_detail', pk=pk)

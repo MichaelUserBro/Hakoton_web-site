@@ -1,47 +1,48 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block content %}
-<div class="row g-4">
-    <div class="col-lg-4 col-md-5">
-        <div class="card shadow-sm p-4 text-center">
-            <img src="{{ user.profile.avatar.url|default:'https://via.placeholder.com/120' }}" class="rounded-circle mx-auto mb-3">
-            <h3>{{ user.get_full_name|default:user.username }}</h3>
-            <span class="badge bg-primary mb-3">{{ user.profile.direction|default:"Участник" }}</span>
-
-            <div class="p-3 bg-light rounded-3">
-                <small class="text-muted d-block">Ваш рейтинг</small>
-                <div class="rating-number text-primary">{{ user.profile.score|default:"0" }}</div>
-            </div>
-        </div>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Личный кабинет: {{ user.username }}</h2>
+        <span class="badge bg-primary fs-6">Студент</span>
     </div>
+    
+    <h4 class="mb-3">Мои мероприятия</h4>
+    <hr>
 
-    <div class="col-lg-8 col-md-7">
-        <div class="card shadow-sm p-4 mb-4">
-            <h4 class="mb-4">Прогресс до следующего уровня</h4>
-            {% if next_level %}
-            <div class="alert alert-warning border-0">
-                ⭐ Вам осталось набрать <strong>{{ points_to_next }}</strong> баллов
-            </div>
-            <div class="progress mb-2" style="height: 30px; border-radius: 10px;">
-                <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress_percent }}%">{{ progress_percent }}%</div>
-            </div>
-            {% else %}
-            <div class="alert alert-success border-0">Вы достигли максимального уровня!</div>
-            {% endif %}
-        </div>
-
-        <div class="card shadow-sm p-4">
-            <h5 class="mb-3">Последние активности</h5>
-            <div class="list-group list-group-flush">
-                {% for activity in activities %}
-                <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                    <span>{{ activity.event_name }}</span>
-                    <span class="badge bg-success">+{{ activity.points }}</span>
+    <div class="row">
+        {% for part in participations %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">{{ part.event.title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted">
+                            <i class="far fa-calendar-alt"></i> {{ part.event.date|date:"d E Y, H:i" }}
+                        </p>
+                        <p class="card-text">
+                            <strong>Статус:</strong> 
+                            {% if part.is_confirmed %}
+                                <span class="text-success fw-bold">Подтверждено</span>
+                            {% else %}
+                                <span class="text-warning fw-bold">Ожидает подтверждения</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <a href="{% url 'events:event_detail' part.event.pk %}" class="btn btn-outline-primary w-100">
+                            Подробнее
+                        </a>
+                    </div>
                 </div>
-                {% empty %}
-                <p class="text-muted">У вас пока нет активностей.</p>
-                {% endfor %}
             </div>
-        </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">Вы еще не записались ни на одно мероприятие.</p>
+                <a href="{% url 'events:event_list' %}" class="btn btn-primary">Посмотреть доступные события</a>
+            </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
