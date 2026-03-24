@@ -18,4 +18,6 @@ urlpatterns = [
     path('inspector/', views.hr_inspector_view, name='hr_inspector'),
 
     path('organizers/', views.organizers_list_view, name='organizers_list'),
+
+    path('organizer/<int:pk>/', views.organizer_detail_view, name='organizer_detail'),
 ]

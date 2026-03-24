@@ -7,6 +7,9 @@ from django.db.models import Count, Avg, Q
 from django.utils.timezone import now
 from django.contrib.auth.decorators import user_passes_test
 
+from django.shortcuts import get_object_or_404, redirect
+from .models import Review
+
 from .models import User
 from .forms import MyUserCreationForm
 from events.models import Participation 
@@ -155,3 +158,26 @@ def organizers_list_view(request):
     # Фильтруем только тех, у кого роль 'organizer'
     organizers = User.objects.filter(role='organizer')
     return render(request, 'users/organizers_list.html', {'organizers': organizers})
+
+
+def organizer_detail_view(request, pk):
+    organizer = get_object_or_404(User, pk=pk, role='organizer')
+    reviews = organizer.reviews.all().order_by('-created_at')
+    
+    if request.method == 'POST':
+        # Простая обработка формы без создания отдельного класса Form
+        text = request.POST.get('text')
+        rating = request.POST.get('rating')
+        if text and rating:
+            Review.objects.create(
+                organizer=organizer,
+                author=request.user,
+                text=text,
+                rating=int(rating)
+            )
+            return redirect('users:organizer_detail', pk=pk)
+
+    return render(request, 'users/organizer_detail.html', {
+        'organizer': organizer,
+        'reviews': reviews
+    })

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'users:organizers_list' %}" class="text-decoration-none">← К списку организаторов</a></li>
+            <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ organizer.get_full_name|default:organizer.username }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 sticky-top" style="border-radius: 20px; top: 20px;">
+                <div class="card-body text-center p-4">
+                    <div class="display-1 text-warning mb-2">⭐</div>
+                    <h3 class="fw-bold mb-1">{{ organizer.get_full_name|default:organizer.username }}</h3>
+                    <div class="badge bg-light text-dark mb-3">Организатор</div>
+                    
+                    <div class="p-3 bg-light rounded-3 mb-3">
+                        <h2 class="fw-bold text-primary mb-0">{{ organizer.trust_rating }}</h2>
+                        <small class="text-muted">Рейтинг доверия</small>
+                    </div>
+
+                    <div class="text-start">
+                        <h6 class="fw-bold small text-uppercase text-muted">Обычно дарит:</h6>
+                        <p class="card-text">{{ organizer.usual_rewards|default:"Призы на уточнении" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Оставить отзыв об организаторе</h5>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small">Ваша оценка</label>
+                                <select name="rating" class="form-select border-0 bg-light" required>
+                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Отлично)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 - Хорошо)</option>
+                                    <option value="3">⭐⭐⭐ (3 - Нормально)</option>
+                                    <option value="2">⭐⭐ (2 - Плохо)</option>
+                                    <option value="1">⭐ (1 - Ужасно)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small">Ваш комментарий</label>
+                            <textarea name="text" class="form-control border-0 bg-light" rows="4" placeholder="Поделитесь вашим впечатлением от взаимодействия с организатором..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">Опубликовать отзыв</button>
+                    </form>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-3">Отзывы участников <span class="badge bg-secondary ms-2">{{ reviews.count }}</span></h5>
+            
+            {% for review in reviews %}
+            <div class="card shadow-sm border-0 mb-3" style="border-radius: 15px;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                {{ review.author.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">{{ review.author.username }}</h6>
+                                <small class="text-muted">{{ review.created_at|date:"d E Y" }}</small>
+                            </div>
+                        </div>
+                        <div class="badge bg-warning text-dark">⭐ {{ review.rating }}</div>
+                    </div>
+                    <p class="mb-0 text-dark" style="line-height: 1.6;">"{{ review.text }}"</p>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 bg-light rounded-4">
+                <p class="text-muted mb-0">Здесь пока нет отзывов. Станьте первым, кто его оставит!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
