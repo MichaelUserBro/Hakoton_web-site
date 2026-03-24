@@ -12,7 +12,6 @@ def event_list(request):
 # 2. Детальная страница мероприятия
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk)
-    # Получаем всех участников для организатора, чтобы он мог их подтверждать
     all_participations = Participation.objects.filter(event=event).select_related('user')
     
     is_joined = False
@@ -26,7 +25,7 @@ def event_detail(request, pk):
         'event': event,
         'is_joined': is_joined,
         'user_participation': user_participation,
-        'all_participations': all_participations # Список всех заявок для организатора
+        'all_participations': all_participations 
     })
 
 # 3. Логика записи на мероприятие
@@ -42,7 +41,7 @@ def join_event(request, pk):
     
     return redirect('events:event_detail', pk=pk)
 
-# 4. Создание мероприятия (только для организаторов)
+# 4. Создание мероприятия
 @login_required
 def event_create(request):
     if request.user.role != 'organizer':
@@ -65,6 +64,28 @@ def event_create(request):
 # 5. ПОДТВЕРЖДЕНИЕ УЧАСТИЯ И НАЧИСЛЕНИЕ БАЛЛОВ (Новое!)
 # ... (начало файла без изменений до функции confirm_participation)
 
+# ШАГ 2: РЕДАКТИРОВАНИЕ МЕРОПРИЯТИЯ (Добавлено!)
+@login_required
+def event_edit(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    
+    # Проверка прав: только организатор этого события
+    if event.organizer != request.user:
+        messages.error(request, "Вы не можете редактировать чужое мероприятие.")
+        return redirect('events:event_detail', pk=pk)
+
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Изменения сохранены!')
+            return redirect('events:event_detail', pk=pk)
+    else:
+        form = EventForm(instance=event)
+    
+    return render(request, 'events/event_edit.html', {'form': form, 'event': event})
+
+# 5. ПОДТВЕРЖДЕНИЕ УЧАСТИЯ (Исправлено, чтобы не было дублей баллов!)
 @login_required
 def confirm_participation(request, pk):
     participation = get_object_or_404(Participation, pk=pk)
@@ -97,5 +118,9 @@ def confirm_participation(request, pk):
         
         user.save()
         messages.success(request, f"Участие {user.username} подтверждено. Баллы начислены!")
+        # МЫ УДАЛИЛИ ОТСЮДА РУЧНОЕ НАЧИСЛЕНИЕ БАЛЛОВ.
+        # Теперь они начисляются ТОЛЬКО через сигнал в models.py.
+        participation.save() 
+        messages.success(request, f"Участие {participation.user.username} подтверждено!")
     
     return redirect('events:event_detail', pk=participation.event.pk)

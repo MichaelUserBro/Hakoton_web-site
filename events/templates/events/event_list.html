@@ -12,7 +12,18 @@
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; transition: transform 0.2s;">
                 <div class="card-body">
-                    <h5 class="card-title text-primary fw-bold">{{ event.title }}</h5>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title text-primary fw-bold mb-0">{{ event.title }}</h5>
+                        <span class="badge 
+                            {% if event.event_type == 'it' %}bg-primary
+                            {% elif event.event_type == 'social' %}bg-info
+                            {% elif event.event_type == 'project' %}bg-warning text-dark
+                            {% elif event.event_type == 'media' %}bg-danger
+                            {% else %}bg-secondary{% endif %} rounded-pill shadow-sm">
+                            {{ event.get_event_type_display }}
+                        </span>
+                    </div>
+
                     <p class="card-text text-muted">{{ event.description|truncatewords:15 }}</p>
                     <hr class="opacity-10">
                     <ul class="list-unstyled mb-0">
