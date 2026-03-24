@@ -14,22 +14,36 @@
                 {% endif %}
                 
                 <h3 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h3>
+                
                 <span class="badge bg-primary mb-3 px-3 py-2" style="border-radius: 20px;">
-                    {{ user.profile.direction|default:"Участник проекта" }}
+                    {{ user.get_role_display }} | {{ user.direction|default:"Общее направление" }}
                 </span>
 
-                <div class="p-3 bg-light rounded-3 shadow-sm">
-                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Ваш рейтинг</small>
-                    <div class="text-primary fw-bold" style="font-size: 2rem; line-height: 1;">
-                        {{ user.points|default:"0" }}
+                {% if user.role == 'organizer' %}
+                    <div class="p-3 bg-light rounded-3 shadow-sm border-start border-success border-4">
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Рейтинг доверия</small>
+                        <div class="text-success fw-bold" style="font-size: 2rem; line-height: 1;">
+                            ⭐ {{ user.trust_rating|default:"5.0" }}
+                        </div>
+                        <small class="text-muted">на основе отзывов</small>
                     </div>
-                </div>
+                {% else %}
+                    <div class="p-3 bg-light rounded-3 shadow-sm border-start border-primary border-4">
+                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Ваш рейтинг</small>
+                        <div class="text-primary fw-bold" style="font-size: 2rem; line-height: 1;">
+                            {{ user.points|default:"0" }}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <div class="col-lg-8 col-md-7">
             <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 15px;">
-                <h4 class="mb-4 fw-bold">Мои мероприятия</h4>
+                <h4 class="mb-4 fw-bold">
+                    {% if user.role == 'organizer' %}Проведенные мероприятия{% else %}Мои мероприятия{% endif %}
+                </h4>
+                
                 <div class="list-group list-group-flush">
                     {% for part in participations %}
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-bottom">
@@ -54,12 +68,21 @@
                         </div>
                     {% empty %}
                         <div class="text-center py-4">
-                            <p class="text-muted mb-3">Вы еще не записались ни на одно мероприятие.</p>
+                            <p class="text-muted mb-3">Список пуст.</p>
                             <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-sm">Найти мероприятия</a>
                         </div>
                     {% endfor %}
                 </div>
             </div>
+            
+            {% if user.role == 'organizer' %}
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 15px;">
+                <h5 class="fw-bold mb-3">Панель управления</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'events:event_list' %}" class="btn btn-outline-success">Создать новое мероприятие</a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

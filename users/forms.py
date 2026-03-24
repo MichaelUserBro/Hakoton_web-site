@@ -5,5 +5,11 @@ from .models import User
 class MyUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        # Укажи поля, которые пользователь заполняет при регистрации
-        fields = ("username",)
+        # Добавляем поле role, чтобы оно появилось в форме
+        fields = ("username", "role")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем Bootstrap-класс для красивого отображения списка
+        if 'role' in self.fields:
+            self.fields['role'].widget.attrs.update({'class': 'form-select'})
