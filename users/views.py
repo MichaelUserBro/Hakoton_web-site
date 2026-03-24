@@ -55,10 +55,11 @@ def leaderboard_view(request):
     # Фильтруем только участников (студентов)
     # Сортируем по убыванию общей суммы баллов (поле 'points')
     users_top = User.objects.filter(role='participant').order_by('-points')[:100]
-    try:
-        users_top = User.objects.all().order_by('-points')[:100]
-    except Exception:
-        users_top = User.objects.all()[:100]
+    def leaderboard_view(request):
+    # Оставляем только эту строку: фильтруем участников и сортируем
+        users_top = User.objects.filter(role='participant').order_by('-points')[:100]
+    
+        return render(request, 'users/leaderboard.html', {'users_top': users_top})
     return render(request, 'users/leaderboard.html', {'users_top': users_top})
 
 # --- БЛОК ИНСПЕКТОРА ---

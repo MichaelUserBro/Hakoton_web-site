@@ -13,7 +13,7 @@ def update_user_points(sender, instance, created, **kwargs):
     if instance.is_confirmed:
         user = instance.user
         event = instance.event
-        points_to_add = event.reward_points
+        points_to_add = event.points
 
         # Используем atomic, чтобы данные сохранились корректно
         with transaction.atomic():
