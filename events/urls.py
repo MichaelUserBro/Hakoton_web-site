@@ -9,4 +9,5 @@ urlpatterns = [
     path('<int:pk>/join/', views.join_event, name='join_event'),
     path('create/', views.event_create, name='event_create'),
     path('participation/<int:pk>/confirm/', views.confirm_participation, name='confirm_participation'),
+    path('event/<int:pk>/edit/', views.event_edit, name='event_edit'),
 ]

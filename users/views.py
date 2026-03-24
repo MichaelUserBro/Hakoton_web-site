@@ -1,16 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views import generic
 from django.urls import reverse_lazy
-from django.utils import timezone 
+from django.utils import timezone
 from django.db.models import Count, Avg, Q
 from django.utils.timezone import now
-from django.contrib.auth.decorators import user_passes_test
 
-from django.shortcuts import get_object_or_404, redirect
-from .models import Review
-
-from .models import User
+from .models import User, Review
 from .forms import MyUserCreationForm
 from events.models import Participation 
 
@@ -20,7 +16,7 @@ class SignUpView(generic.CreateView):
     success_url = reverse_lazy('login') 
     template_name = 'registration/register.html'
 
-# 2. Профиль (с детальной статистикой)
+# 2. Профиль (исправленный, одна версия)
 @login_required
 def profile_view(request):
     user = request.user
@@ -36,76 +32,67 @@ def profile_view(request):
             'future_count': future_events.count(),
         }
     else:
-        # Для студента подгружаем его записи на мероприятия
+        # --- ЛОГИКА РЕЙТИНГА ---
+        all_participants = User.objects.filter(role='participant').order_by('-points', 'username')
+        participants_list = list(all_participants.values_list('id', flat=True))
+        
+        # 1. Текущее место
+        try:
+            current_rank = participants_list.index(user.id) + 1
+        except ValueError:
+            current_rank = "#"
+            
+        # 2. Расчет баллов до ТОП-100
+        top_100 = all_participants[:100]
+        if all_participants.count() >= 100:
+            threshold_points = list(top_100)[99].points
+        else:
+            threshold_points = all_participants.last().points if all_participants.exists() else 0
+            
+        points_to_top = max(0, threshold_points - user.points)
+        
+        # Процент для прогресс-бара
+        if threshold_points > 0:
+            progress_percent = min(100, int((user.points / threshold_points) * 100))
+        else:
+            progress_percent = 100 
+            
         user_participations = Participation.objects.filter(user=user).select_related('event')
+        
         context = {
             'user': user,
             'participations': user_participations,
+            'current_rank': current_rank,
+            'points_to_top': points_to_top,
+            'progress_percent': progress_percent,
+            'threshold_points': threshold_points,
         }
     
     return render(request, 'users/profile.html', context)
-# 2. Личный кабинет
-@login_required
-def profile_view(request):
-    user_participations = Participation.objects.filter(user=request.user).select_related('event')
-    return render(request, 'users/profile.html', {
-        'user': request.user,
-        'participations': user_participations,
-    })
 
-# 3. Обновленный Рейтинг (6 столбцов: имя, 4 категории, сумма)
-# 3. Обновленный Рейтинг (фильтрация по направлениям)
+# 3. Рейтинг
 def leaderboard_view(request):
-    # Базовый запрос: только участники (студенты)
     participants = User.objects.filter(role='participant')
-
-    # Формируем 5 разных списков для разных вкладок
     context = {
-        # Общий топ по всем баллам
         'users_top': participants.order_by('-points')[:100],
-        
-        # Топ IT (поле points_it)
         'users_it': participants.order_by('-points_it')[:100],
-        
-        # Топ Социальное (поле points_social)
         'users_social': participants.order_by('-points_social')[:100],
-        
-        # Топ Проекты (поле points_project)
         'users_project': participants.order_by('-points_project')[:100],
-        
-        # Топ Медиа (поле points_media)
         'users_media': participants.order_by('-points_media')[:100],
     }
-    
     return render(request, 'users/leaderboard.html', context)
 
-# --- БЛОК ИНСПЕКТОРА ---
-
-def is_hr(user):
-    return user.is_staff or user.is_superuser
-
-# 1. Функция проверки прав: пускаем только тех, у кого роль 'inspector'
+# 4. Блок инспектора
 def is_inspector(user):
     return user.is_authenticated and (user.role == 'inspector' or user.is_superuser)
-
-from django.db.models import Count, Avg, Q
 
 @user_passes_test(is_inspector)
 def hr_inspector_view(request):
     candidates = User.objects.annotate(
-        events_count=Count(
-            'participation', 
-            # ИСПРАВЛЕНО: is_confirmed вместо status
-            filter=Q(participation__is_confirmed=True) 
-        ),
-        avg_score=Avg(
-            # ИСПРАВЛЕНО: points вместо reward_points
-            'participation__event__points', 
-            filter=Q(participation__is_confirmed=True)
-        )
+        events_count=Count('participation', filter=Q(participation__is_confirmed=True)),
+        avg_score=Avg('participation__event__points', filter=Q(participation__is_confirmed=True))
     ).distinct()
 
-    # --- Код фильтров (город, возраст и т.д.) остается без изменений ---
     city_query = request.GET.get('city')
     min_age = request.GET.get('min_age')
     min_events = request.GET.get('min_events')
@@ -113,10 +100,8 @@ def hr_inspector_view(request):
 
     if city_query:
         candidates = candidates.filter(city__icontains=city_query)
-    
     if min_events:
         candidates = candidates.filter(events_count__gte=min_events)
-
     if min_age:
         try:
             current_year = now().year
@@ -129,43 +114,16 @@ def hr_inspector_view(request):
         'candidates': candidates.order_by(sort_by),
     })
 
-    # Дальше фильтры остаются как были...
-    city_query = request.GET.get('city')
-    min_age = request.GET.get('min_age')
-    min_events = request.GET.get('min_events')
-    sort_by = request.GET.get('sort', '-avg_score')
-
-    if city_query:
-        candidates = candidates.filter(city__icontains=city_query)
-    
-    if min_events:
-        candidates = candidates.filter(events_count__gte=min_events)
-
-    if min_age:
-        try:
-            current_year = now().year
-            birth_year_limit = current_year - int(min_age)
-            candidates = candidates.filter(birth_date__year__lte=birth_year_limit)
-        except (ValueError, TypeError):
-            pass
-
-    return render(request, 'users/hr_inspector.html', {
-        'candidates': candidates.order_by(sort_by),
-    })
-
-
+# 5. Организаторы
 def organizers_list_view(request):
-    # Фильтруем только тех, у кого роль 'organizer'
     organizers = User.objects.filter(role='organizer')
     return render(request, 'users/organizers_list.html', {'organizers': organizers})
-
 
 def organizer_detail_view(request, pk):
     organizer = get_object_or_404(User, pk=pk, role='organizer')
     reviews = organizer.reviews.all().order_by('-created_at')
     
-    if request.method == 'POST':
-        # Простая обработка формы без создания отдельного класса Form
+    if request.method == 'POST' and request.user.is_authenticated:
         text = request.POST.get('text')
         rating = request.POST.get('rating')
         if text and rating:
