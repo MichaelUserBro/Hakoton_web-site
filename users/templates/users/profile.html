@@ -1,40 +1,3 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Личный кабинет: {{ user.username }}</h2>
-        <span class="badge bg-primary fs-6">Студент</span>
-    </div>
-    
-    <h4 class="mb-3">Мои мероприятия</h4>
-    <hr>
-
-    <div class="row">
-        {% for part in participations %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">{{ part.event.title }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text text-muted">
-                            <i class="far fa-calendar-alt"></i> {{ part.event.date|date:"d E Y, H:i" }}
-                        </p>
-                        <p class="card-text">
-                            <strong>Статус:</strong> 
-                            {% if part.is_confirmed %}
-                                <span class="text-success fw-bold">Подтверждено</span>
-                            {% else %}
-                                <span class="text-warning fw-bold">Ожидает подтверждения</span>
-                            {% endif %}
-                        </p>
-                    </div>
-                    <div class="card-footer bg-white border-top-0">
-                        <a href="{% url 'events:event_detail' part.event.pk %}" class="btn btn-outline-primary w-100">
-                            Подробнее
-                        </a>
-                    </div>
 {% extends "base.html" %}
 
 {% block content %}
@@ -58,7 +21,7 @@
                 <div class="p-3 bg-light rounded-3 shadow-sm">
                     <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Ваш рейтинг</small>
                     <div class="text-primary fw-bold" style="font-size: 2rem; line-height: 1;">
-                        {{ user.profile.score|default:"0" }}
+                        {{ user.points|default:"0" }}
                     </div>
                 </div>
             </div>
@@ -66,57 +29,38 @@
 
         <div class="col-lg-8 col-md-7">
             <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 15px;">
-                <h4 class="mb-4 fw-bold">Прогресс до следующего уровня</h4>
-                {% if next_level %}
-                    <div class="alert alert-warning border-0 shadow-sm mb-3">
-                        ⭐ Вам осталось набрать <strong>{{ points_to_next }}</strong> баллов
-                    </div>
-                    <div class="progress mb-2" style="height: 25px; border-radius: 12px; background-color: #e9ecef;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
-                             role="progressbar" 
-                             style="width: {{ progress_percent }}%; font-weight: bold;" 
-                             aria-valuenow="{{ progress_percent }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                             {{ progress_percent }}%
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="alert alert-success border-0 shadow-sm">
-                        🎉 Поздравляем! Вы достигли максимального уровня!
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="card shadow-sm border-0 p-4" style="border-radius: 15px;">
-                <h5 class="mb-4 fw-bold">Последние активности</h5>
+                <h4 class="mb-4 fw-bold">Мои мероприятия</h4>
                 <div class="list-group list-group-flush">
-                    {% for activity in activities %}
+                    {% for part in participations %}
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-bottom">
                             <div class="d-flex align-items-center">
-                                <span class="me-3 fs-4">✅</span>
+                                <span class="me-3 fs-4">
+                                    {% if part.is_confirmed %}✅{% else %}⏳{% endif %}
+                                </span>
                                 <div>
-                                    <span class="fw-medium d-block">{{ activity.event_name }}</span>
-                                    <small class="text-muted">{{ activity.date|date:"d.m.Y" }}</small>
+                                    <span class="fw-medium d-block">{{ part.event.title }}</span>
+                                    <small class="text-muted">{{ part.event.date|date:"d.m.Y" }}</small>
                                 </div>
                             </div>
-                            <span class="badge bg-success-soft text-success p-2 px-3" style="background-color: #e8f5e9; border-radius: 10px;">
-                                +{{ activity.points }}
-                            </span>
+                            <div class="text-end">
+                                <a href="{% url 'events:event_detail' part.event.pk %}" class="btn btn-sm btn-outline-primary mb-1">Детали</a>
+                                <br>
+                                {% if part.is_confirmed %}
+                                    <span class="badge bg-success">Подтверждено</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Ожидание</span>
+                                {% endif %}
+                            </div>
                         </div>
                     {% empty %}
                         <div class="text-center py-4">
-                            <p class="text-muted mb-0">У вас пока нет активностей. Участвуйте в мероприятиях!</p>
+                            <p class="text-muted mb-3">Вы еще не записались ни на одно мероприятие.</p>
+                            <a href="{% url 'events:event_list' %}" class="btn btn-primary btn-sm">Найти мероприятия</a>
                         </div>
                     {% endfor %}
                 </div>
             </div>
-        {% empty %}
-            <div class="col-12 text-center py-5">
-                <p class="text-muted fs-5">Вы еще не записались ни на одно мероприятие.</p>
-                <a href="{% url 'events:event_list' %}" class="btn btn-primary">Посмотреть доступные события</a>
-            </div>
-        {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

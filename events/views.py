@@ -44,7 +44,6 @@ def event_detail(request, pk):
 @login_required
 def join_event(request, pk):
     event = get_object_or_404(Event, pk=pk)
-<<<<<<< HEAD
     
     participation, created = Participation.objects.get_or_create(user=request.user, event=event)
     
@@ -56,8 +55,6 @@ def join_event(request, pk):
         messages.info(request, 'Вы уже записаны на это мероприятие.')
     
     return redirect('events:event_detail', pk=pk)
-=======
     # Создаем запись об участии
     Participation.objects.get_or_create(user=request.user, event=event)
     return redirect('events:event_detail', pk=pk)
->>>>>>> 4227972d5b448fc245a621df5a05ccc66aea373b
