@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Инспектор кадрового резерва</h2>
+        <span class="badge bg-primary">Кандидатов: {{ candidates.count }}</span>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" name="city" class="form-control" placeholder="Город..." value="{{ request.GET.city }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="min_age" class="form-control" placeholder="Мин. возраст" value="{{ request.GET.min_age }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="min_events" class="form-control" placeholder="Мин. мероприятий" value="{{ request.GET.min_events }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-select">
+                        <option value="-avg_score" {% if request.GET.sort == '-avg_score' %}selected{% endif %}>Сначала высокий балл</option>
+                        <option value="-events_count" {% if request.GET.sort == '-events_count' %}selected{% endif %}>Больше мероприятий</option>
+                        <option value="username" {% if request.GET.sort == 'username' %}selected{% endif %}>По алфавиту</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Поиск</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover bg-white mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Кандидат</th>
+                    <th>Город</th>
+                    <th>Дата рождения</th>
+                    <th class="text-center">Мероприятий</th>
+                    <th class="text-center">Средний балл</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in candidates %}
+                <tr>
+                    <td><strong>{{ c.get_full_name|default:c.username }}</strong></td>
+                    <td>{{ c.city|default:"—" }}</td>
+                    <td>{{ c.birth_date|date:"d.m.Y"|default:"—" }}</td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary">{{ c.events_count }}</span>
+                    </td>
+                    <td class="text-center text-success fw-bold">
+                        {{ c.avg_score|floatformat:1|default:"0.0" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">Никого не нашли по таким критериям</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

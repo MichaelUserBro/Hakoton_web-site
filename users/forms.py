@@ -6,7 +6,7 @@ class MyUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         # Добавляем поле role, чтобы оно появилось в форме
-        fields = ("username", "role")
+        fields = UserCreationForm.Meta.fields + ('birth_date', 'city', 'role')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

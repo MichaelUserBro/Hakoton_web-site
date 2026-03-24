@@ -12,7 +12,6 @@
             min-height: 100vh;
         }
         
-        /* Фирменная синяя шапка */
         .navbar-custom {
             background-color: #0d6efd;
             padding: 12px 0;
@@ -29,7 +28,6 @@
             opacity: 0.8;
         }
 
-        /* Кнопка выхода */
         .logout-btn {
             background: none;
             border: none;
@@ -39,7 +37,6 @@
             cursor: pointer;
         }
 
-        /* Общий стиль карточек */
         .card {
             border: none;
             border-radius: 15px;
@@ -69,9 +66,16 @@
                     <a class="nav-link me-3" href="{% url 'users:leaderboard' %}">Рейтинг</a>
 
                     {% if user.is_authenticated %}
+                        {% if user.role == 'inspector' %}
+                            <a class="nav-link me-3 fw-bold text-warning" href="{% url 'users:hr_inspector' %}">
+                                🔍 Инспектор
+                            </a>
+                        {% endif %}
+
                         <a class="nav-link me-3" href="{% url 'users:profile' %}">
                             👤 {{ user.username }}
                         </a>
+
                         <form action="{% url 'logout' %}" method="post" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="nav-link logout-btn">Выход</button>

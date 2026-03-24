@@ -14,4 +14,6 @@ urlpatterns = [
     # Регистрация
     # .as_view() нужен, так как SignUpView — это класс, а не обычная функция
     path('register/', views.SignUpView.as_view(), name='register'),
+
+    path('inspector/', views.hr_inspector_view, name='hr_inspector'),
 ]

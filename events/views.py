@@ -63,12 +63,12 @@ def event_create(request):
     return render(request, 'events/event_form.html', {'form': form})
 
 # 5. ПОДТВЕРЖДЕНИЕ УЧАСТИЯ И НАЧИСЛЕНИЕ БАЛЛОВ (Новое!)
+# ... (начало файла без изменений до функции confirm_participation)
+
 @login_required
 def confirm_participation(request, pk):
-    # pk здесь — это ID записи Participation
     participation = get_object_or_404(Participation, pk=pk)
     
-    # Проверка: только организатор этого события может подтверждать
     if request.user != participation.event.organizer:
         messages.error(request, "У вас нет прав для этого действия.")
         return redirect('events:event_detail', pk=participation.event.pk)
@@ -77,15 +77,15 @@ def confirm_participation(request, pk):
         participation.is_confirmed = True
         participation.save()
 
-        # Логика распределения баллов
         user = participation.user
         event = participation.event
-        pts = event.reward_points
+        # ИСПРАВЛЕНО: используем points вместо reward_points
+        pts = event.points 
 
         # Общий счетчик
         user.points += pts
 
-        # Категориальные счетчики
+        # Категориальные счетчики (Убедись, что эти поля есть в users/models.py!)
         if event.event_type == 'it':
             user.points_it += pts
         elif event.event_type == 'social':

@@ -4,10 +4,10 @@ from .models import Event
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        # 1. Добавили 'event_type' в список полей
-        fields = ['title', 'description', 'location', 'date', 'reward_points', 'event_type']
+        # Убедись, что в models.py поле называется 'points'. 
+        # Если там 'reward_points', просто переименуй 'points' обратно ниже.
+        fields = ['title', 'description', 'location', 'date', 'points', 'event_type']
         
-        # 2. Настроили виджеты с Bootstrap-классами
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control', 
@@ -26,22 +26,20 @@ class EventForm(forms.ModelForm):
                 'class': 'form-control', 
                 'type': 'datetime-local'
             }),
-            'reward_points': forms.NumberInput(attrs={
+            'points': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Количество баллов'
             }),
-            # Виджет для выбора типа (выпадающий список)
             'event_type': forms.Select(attrs={
                 'class': 'form-select'
             }),
         }
 
-        # 3. Добавили понятные названия для полей (labels)
         labels = {
             'title': 'Название',
             'description': 'Описание',
             'location': 'Место проведения',
             'date': 'Дата и время',
-            'reward_points': 'Баллы',
+            'points': 'Баллы',
             'event_type': 'Тип мероприятия',
         }

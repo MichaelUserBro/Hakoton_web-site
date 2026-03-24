@@ -14,7 +14,7 @@ class Event(models.Model):
     description = models.TextField(verbose_name="Описание")
     date = models.DateTimeField(verbose_name="Дата и время проведения")
     location = models.CharField(max_length=255, verbose_name="Место проведения")
-    reward_points = models.PositiveIntegerField(default=10, verbose_name="Баллы за участие")
+    points = models.PositiveIntegerField(default=10, verbose_name="Баллы за участие")
     
     # Новое поле: Тип мероприятия
     event_type = models.CharField(
