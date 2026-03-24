@@ -1,17 +1,34 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Participation
-from django.db.models import F
+from django.db import transaction
 
 @receiver(post_save, sender=Participation)
 def update_user_points(sender, instance, created, **kwargs):
     """
-    Сигнал срабатывает при каждом сохранении записи об участии.
-    Если статус 'Присутствие подтверждено' (True), начисляем баллы.
+    Сигнал срабатывает при сохранении участия.
+    Если is_confirmed = True, начисляем баллы в общую сумму и в нужную категорию.
     """
-    # Проверяем, что статус стал True
-    if instance.status:
+    # 1. Проверяем новое поле is_confirmed (вместо старого status)
+    if instance.is_confirmed:
         user = instance.user
-        # Прибавляем баллы из связанного мероприятия
-        user.points = F('points') + instance.event.reward_points
-        user.save()
+        event = instance.event
+        points_to_add = event.reward_points
+
+        # Используем atomic, чтобы данные сохранились корректно
+        with transaction.atomic():
+            # 2. Начисляем в общую сумму
+            user.points += points_to_add
+
+            # 3. Распределяем по категориям (Задача №2)
+            if event.event_type == 'it':
+                user.points_it += points_to_add
+            elif event.event_type == 'social':
+                user.points_social += points_to_add
+            elif event.event_type == 'project':
+                user.points_project += points_to_add
+            elif event.event_type == 'media':
+                user.points_media += points_to_add
+
+            # Сохраняем обновленные данные пользователя
+            user.save()

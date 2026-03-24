@@ -1,31 +1,56 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
-                <tr>
-                    <th class="text-center">#</th>
-                    <th>Участник</th>
-                    <th>Направление</th>
-                    <th class="text-center">Баллы</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for participant in users_top %}
-                <tr {% if participant == request.user %}class="table-info" {% endif %}>
-                    <td class="text-center fw-bold">{{ forloop.counter }}</td>
-                    <td>{{ participant.username }}</td>
-                    <td>{{ participant.direction|default:"—" }}</td>
-                    <td class="text-center fw-bold">{{ participant.points|default:0 }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="text-center p-4 text-muted">Рейтинг пока пуст</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">🏆 Рейтинг активистов</h2>
+        <span class="badge bg-primary px-3 py-2">Топ-100 участников</span>
+    </div>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center ps-4">#</th>
+                        <th>Участник</th>
+                        <th class="text-center">💻 IT</th>
+                        <th class="text-center">🤝 Соц.</th>
+                        <th class="text-center">📊 Проекты</th>
+                        <th class="text-center">📸 Медиа</th>
+                        <th class="text-center pe-4">🔥 Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in users_top %}
+                    <tr {% if participant == request.user %}class="table-info" {% endif %}>
+                        <td class="text-center fw-bold ps-4">{{ forloop.counter }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ participant.get_full_name|default:participant.username }}</div>
+                            <small class="text-muted">{{ participant.direction|default:"Общее" }}</small>
+                        </td>
+                        <td class="text-center text-muted">{{ participant.points_it }}</td>
+                        <td class="text-center text-muted">{{ participant.points_social }}</td>
+                        <td class="text-center text-muted">{{ participant.points_project }}</td>
+                        <td class="text-center text-muted">{{ participant.points_media }}</td>
+                        
+                        <td class="text-center pe-4">
+                            <span class="badge bg-success fs-6" style="min-width: 45px;">
+                                {{ participant.points }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center p-5 text-muted">
+                            <i class="fas fa-users mb-3 d-block fa-2x"></i>
+                            Рейтинг пока пуст. Будьте первым!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
