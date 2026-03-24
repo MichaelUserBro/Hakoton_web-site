@@ -4,6 +4,7 @@ from . import views
 app_name = 'events'
 
 urlpatterns = [
-    # Сюда коллега будет добавлять список мероприятий
-    path('', views.events_list, name='events_list'),
+    path('', views.event_list, name='event_list'),
+    path('<int:pk>/', views.event_detail, name='event_detail'),
+    path('<int:pk>/join/', views.join_event, name='join_event'), # Новая строка
 ]

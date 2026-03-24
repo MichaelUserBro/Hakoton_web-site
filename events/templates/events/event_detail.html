@@ -28,13 +28,10 @@
                         <h2 class="text-success">+{{ event.reward_points }}</h2>
                         <p class="text-muted">баллов на ваш счет</p>
                         
-                        {% if event.bonus_info %}
-                            <p class="badge bg-info text-dark">{{ event.bonus_info }}</p>
-                        {% endif %}
-                        
                         <hr>
-                        <button class="btn btn-lg btn-success w-100">Подтвердить участие</button>
-                    </div>
+                        <a href="{% url 'events:join_event' event.pk %}" class="btn btn-lg btn-success w-100">
+                            Подтвердить участие
+                        </a>
                 </div>
             </div>
         </div>
