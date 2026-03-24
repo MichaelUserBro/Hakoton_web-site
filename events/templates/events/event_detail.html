@@ -9,9 +9,10 @@
         </ol>
     </nav>
 
-    <div class="card shadow border-0">
-        <div class="card-header bg-primary text-white py-3">
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
             <h1 class="h3 mb-0">{{ event.title }}</h1>
+            <span class="badge bg-light text-primary fs-6">{{ event.get_event_type_display }}</span>
         </div>
 
         <div class="card-body">
@@ -23,36 +24,43 @@
                     <div class="d-flex flex-column gap-2">
                         <span><strong>📍 Место проведения:</strong> {{ event.location }}</span>
                         <span><strong>📅 Дата и время:</strong> {{ event.date|date:"d E Y, H:i" }}</span>
+                        {% if event.bonus_info %}
+                            <span><strong>🎁 Бонусы:</strong> {{ event.bonus_info }}</span>
+                        {% endif %}
                     </div>
                 </div>
 
                 <div class="col-md-4 border-start">
                     <div class="p-4 bg-light rounded text-center shadow-sm h-100 d-flex flex-column justify-content-center">
-                        <h5 class="text-muted small text-uppercase fw-bold">Бонусы за участие</h5>
+                        <h5 class="text-muted small text-uppercase fw-bold">Баллы за участие</h5>
                         <h2 class="text-success display-4 fw-bold">+{{ event.reward_points }}</h2>
-                        <p class="text-muted mb-4">баллов на ваш счет</p>
+                        <p class="text-muted mb-4">в категорию "{{ event.get_event_type_display }}"</p>
                         
                         <hr class="mb-4">
 
-                        {% if not is_joined %}
-                            <a href="{% url 'events:join_event' event.pk %}" class="btn btn-lg btn-primary w-100 py-3 shadow-sm">
-                                <i class="fas fa-user-plus me-2"></i> Записаться
-                            </a>
-                            <p class="text-muted small mt-3">Нажмите, чтобы забронировать место</p>
-
+                        {% if user.role == 'organizer' and user == event.organizer %}
+                            <div class="alert alert-info border-0 shadow-sm py-3 mb-0">
+                                <h5 class="alert-heading mb-1">Вы организатор</h5>
+                                <p class="mb-0 small">Управляйте списком участников ниже</p>
+                            </div>
                         {% else %}
-                            {% if participation.is_confirmed %}
-                                <div class="alert alert-success border-0 shadow-sm py-3 mb-0">
-                                    <h5 class="alert-heading mb-1"><i class="fas fa-check-circle me-2"></i> Готово!</h5>
-                                    <p class="mb-0 small fw-bold text-success">Участие подтверждено</p>
-                                </div>
-                                <p class="text-muted small mt-2">Баллы зачислены в ваш профиль</p>
+                            {% if not is_joined %}
+                                <a href="{% url 'events:join_event' event.pk %}" class="btn btn-lg btn-primary w-100 py-3 shadow-sm">
+                                    <i class="fas fa-user-plus me-2"></i> Записаться
+                                </a>
                             {% else %}
-                                <div class="alert alert-warning border-0 shadow-sm py-3 mb-0">
-                                    <h5 class="alert-heading mb-1"><i class="fas fa-hourglass-half me-2"></i> В очереди</h5>
-                                    <p class="mb-0 small text-dark">Ожидайте подтверждения</p>
-                                </div>
-                                
+                                {% if user_participation.is_confirmed %}
+                                    <div class="alert alert-success border-0 shadow-sm py-3 mb-0">
+                                        <h5 class="alert-heading mb-1">✅ Готово!</h5>
+                                        <p class="mb-0 small fw-bold text-success">Участие подтверждено</p>
+                                    </div>
+                                    <p class="text-muted small mt-2">Баллы зачислены в ваш профиль</p>
+                                {% else %}
+                                    <div class="alert alert-warning border-0 shadow-sm py-3 mb-0">
+                                        <h5 class="alert-heading mb-1">⏳ В очереди</h5>
+                                        <p class="mb-0 small text-dark">Ожидайте подтверждения от организатора</p>
+                                    </div>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     </div>
@@ -60,5 +68,59 @@
             </div>
         </div>
     </div>
+
+    {# ПАНЕЛЬ ОРГАНИЗАТОРА ДЛЯ ПОДТВЕРЖДЕНИЯ УЧАСТНИКОВ #}
+    {% if user.role == 'organizer' and user == event.organizer %}
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-dark text-white py-3">
+            <h4 class="mb-0">Управление участниками</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Студент</th>
+                            <th>Дата регистрации</th>
+                            <th>Статус</th>
+                            <th class="text-end">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for part in all_participations %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ part.user.get_full_name|default:part.user.username }}</div>
+                                <small class="text-muted">{{ part.user.direction|default:"Общее направление" }}</small>
+                            </td>
+                            <td>{{ part.registered_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                {% if part.is_confirmed %}
+                                    <span class="badge bg-success">Подтвержден</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Ожидает</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if not part.is_confirmed %}
+                                    <a href="{% url 'events:confirm_participation' part.pk %}" class="btn btn-sm btn-success px-3">
+                                        Подтвердить присутствие
+                                    </a>
+                                {% else %}
+                                    <span class="text-success small fw-bold">Баллы начислены</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">На это мероприятие пока никто не записался.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

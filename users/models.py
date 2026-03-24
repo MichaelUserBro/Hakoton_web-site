@@ -8,7 +8,13 @@ class User(AbstractUser):
         ('organizer', 'Организатор'),
         ('inspector', 'Инспектор'),
     )
-    
+
+    # Внутри класса User добавь эти строки:
+    points_it = models.PositiveIntegerField(default=0, verbose_name="Баллы: IT")
+    points_social = models.PositiveIntegerField(default=0, verbose_name="Баллы: Социальное")
+    points_project = models.PositiveIntegerField(default=0, verbose_name="Баллы: Проекты")
+    points_media = models.PositiveIntegerField(default=0, verbose_name="Баллы: Медиа")
+        
     role = models.CharField(
         max_length=20, 
         choices=ROLE_CHOICES, 

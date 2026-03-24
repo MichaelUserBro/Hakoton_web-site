@@ -6,33 +6,33 @@ from .forms import EventForm
 
 # 1. Список всех мероприятий
 def event_list(request):
-    # Оставляем .all() для тестов, чтобы видеть все созданные события
     events = Event.objects.all().order_by('date')
     return render(request, 'events/event_list.html', {'events': events})
 
 # 2. Детальная страница мероприятия
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk)
-    participation = None
+    # Получаем всех участников для организатора, чтобы он мог их подтверждать
+    all_participations = Participation.objects.filter(event=event).select_related('user')
+    
     is_joined = False
+    user_participation = None
 
     if request.user.is_authenticated:
-        # Проверяем, записан ли текущий пользователь
-        participation = Participation.objects.filter(user=request.user, event=event).first()
-        is_joined = participation is not None
+        user_participation = all_participations.filter(user=request.user).first()
+        is_joined = user_participation is not None
 
     return render(request, 'events/event_detail.html', {
         'event': event,
         'is_joined': is_joined,
-        'participation': participation
+        'user_participation': user_participation,
+        'all_participations': all_participations # Список всех заявок для организатора
     })
 
 # 3. Логика записи на мероприятие
 @login_required
 def join_event(request, pk):
     event = get_object_or_404(Event, pk=pk)
-    
-    # get_or_create сразу проверяет, есть ли запись, и если нет — создает её
     participation, created = Participation.objects.get_or_create(user=request.user, event=event)
     
     if created:
@@ -42,14 +42,18 @@ def join_event(request, pk):
     
     return redirect('events:event_detail', pk=pk)
 
-
+# 4. Создание мероприятия (только для организаторов)
 @login_required
 def event_create(request):
+    if request.user.role != 'organizer':
+        messages.error(request, "Только организаторы могут создавать мероприятия.")
+        return redirect('events:event_list')
+
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
             event = form.save(commit=False)
-            event.organizer = request.user  # Назначаем текущего пользователя организатором
+            event.organizer = request.user
             event.save()
             messages.success(request, 'Мероприятие успешно создано!')
             return redirect('events:event_detail', pk=event.pk)
@@ -57,3 +61,41 @@ def event_create(request):
         form = EventForm()
     
     return render(request, 'events/event_form.html', {'form': form})
+
+# 5. ПОДТВЕРЖДЕНИЕ УЧАСТИЯ И НАЧИСЛЕНИЕ БАЛЛОВ (Новое!)
+@login_required
+def confirm_participation(request, pk):
+    # pk здесь — это ID записи Participation
+    participation = get_object_or_404(Participation, pk=pk)
+    
+    # Проверка: только организатор этого события может подтверждать
+    if request.user != participation.event.organizer:
+        messages.error(request, "У вас нет прав для этого действия.")
+        return redirect('events:event_detail', pk=participation.event.pk)
+
+    if not participation.is_confirmed:
+        participation.is_confirmed = True
+        participation.save()
+
+        # Логика распределения баллов
+        user = participation.user
+        event = participation.event
+        pts = event.reward_points
+
+        # Общий счетчик
+        user.points += pts
+
+        # Категориальные счетчики
+        if event.event_type == 'it':
+            user.points_it += pts
+        elif event.event_type == 'social':
+            user.points_social += pts
+        elif event.event_type == 'project':
+            user.points_project += pts
+        elif event.event_type == 'media':
+            user.points_media += pts
+        
+        user.save()
+        messages.success(request, f"Участие {user.username} подтверждено. Баллы начислены!")
+    
+    return redirect('events:event_detail', pk=participation.event.pk)
