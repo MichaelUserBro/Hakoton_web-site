@@ -12,15 +12,17 @@
                 </tr>
             </thead>
             <tbody>
-                {% for participant in participants %}
-                <tr {% if participant.user == request.user %}class="table-info" {% endif %}>
+                {% for participant in users_top %}
+                <tr {% if participant == request.user %}class="table-info" {% endif %}>
                     <td class="text-center fw-bold">{{ forloop.counter }}</td>
-                    <td>{{ participant.user.get_full_name }}</td>
-                    <td>{{ participant.direction }}</td>
-                    <td class="text-center fw-bold">{{ participant.score }}</td>
+                    <td>{{ participant.username }}</td>
+                    <td>{{ participant.direction|default:"—" }}</td>
+                    <td class="text-center fw-bold">{{ participant.points|default:0 }}</td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" class="text-center">Рейтинг пока пуст</td></tr>
+                <tr>
+                    <td colspan="4" class="text-center p-4 text-muted">Рейтинг пока пуст</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

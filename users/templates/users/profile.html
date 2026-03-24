@@ -35,6 +35,80 @@
                             Подробнее
                         </a>
                     </div>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-5">
+            <div class="card shadow-sm border-0 p-4 text-center" style="border-radius: 15px;">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" class="rounded-circle mx-auto mb-3" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #f0f2f5;">
+                {% else %}
+                    <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center bg-light text-primary" style="width: 120px; height: 120px; font-size: 3rem; border: 4px solid #f0f2f5;">
+                        👤
+                    </div>
+                {% endif %}
+                
+                <h3 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h3>
+                <span class="badge bg-primary mb-3 px-3 py-2" style="border-radius: 20px;">
+                    {{ user.profile.direction|default:"Участник проекта" }}
+                </span>
+
+                <div class="p-3 bg-light rounded-3 shadow-sm">
+                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.75rem;">Ваш рейтинг</small>
+                    <div class="text-primary fw-bold" style="font-size: 2rem; line-height: 1;">
+                        {{ user.profile.score|default:"0" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 col-md-7">
+            <div class="card shadow-sm border-0 p-4 mb-4" style="border-radius: 15px;">
+                <h4 class="mb-4 fw-bold">Прогресс до следующего уровня</h4>
+                {% if next_level %}
+                    <div class="alert alert-warning border-0 shadow-sm mb-3">
+                        ⭐ Вам осталось набрать <strong>{{ points_to_next }}</strong> баллов
+                    </div>
+                    <div class="progress mb-2" style="height: 25px; border-radius: 12px; background-color: #e9ecef;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                             role="progressbar" 
+                             style="width: {{ progress_percent }}%; font-weight: bold;" 
+                             aria-valuenow="{{ progress_percent }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                             {{ progress_percent }}%
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success border-0 shadow-sm">
+                        🎉 Поздравляем! Вы достигли максимального уровня!
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 15px;">
+                <h5 class="mb-4 fw-bold">Последние активности</h5>
+                <div class="list-group list-group-flush">
+                    {% for activity in activities %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <span class="me-3 fs-4">✅</span>
+                                <div>
+                                    <span class="fw-medium d-block">{{ activity.event_name }}</span>
+                                    <small class="text-muted">{{ activity.date|date:"d.m.Y" }}</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success-soft text-success p-2 px-3" style="background-color: #e8f5e9; border-radius: 10px;">
+                                +{{ activity.points }}
+                            </span>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-4">
+                            <p class="text-muted mb-0">У вас пока нет активностей. Участвуйте в мероприятиях!</p>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% empty %}
