@@ -4,12 +4,8 @@ from .models import Event
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        # Убедись, что в models.py поле называется 'points'. 
-        # Если там 'reward_points', просто переименуй 'points' обратно ниже.
+        # Оставляем только те поля, которые реально есть в models.py
         fields = ['title', 'description', 'location', 'date', 'points', 'event_type']
-        
-        # Список полей, которые будут доступны в форме
-        fields = ['title', 'description', 'location', 'date', 'reward_points', 'event_type']
         
         # Настройка виджетов для соответствия стилям Bootstrap 5
         widgets = {
@@ -45,8 +41,6 @@ class EventForm(forms.ModelForm):
             'description': 'Описание',
             'location': 'Место проведения',
             'date': 'Дата и время',
-            'points': 'Баллы',
-            'event_type': 'Тип мероприятия',
-            'reward_points': 'Количество баллов',
+            'points': 'Баллы за участие',
             'event_type': 'Категория мероприятия',
         }
