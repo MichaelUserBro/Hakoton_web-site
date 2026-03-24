@@ -6,6 +6,8 @@ class User(AbstractUser):
         ('participant', 'Участник'),
         ('organizer', 'Организатор'),
         ('inspector', 'Инспектор'),
+
+        
     )
 
     # Роль пользователя
@@ -33,6 +35,8 @@ class User(AbstractUser):
     # Для организаторов
     trust_rating = models.FloatField(default=5.0, verbose_name="Рейтинг доверия")
 
+    usual_rewards = models.TextField(blank=True, verbose_name="Типичные призы")
+    
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"

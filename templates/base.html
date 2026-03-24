@@ -64,6 +64,9 @@
                 <div class="navbar-nav ms-auto align-items-center">
                     <a class="nav-link me-3" href="{% url 'events:event_list' %}">Мероприятия</a>
                     <a class="nav-link me-3" href="{% url 'users:leaderboard' %}">Рейтинг</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'users:organizers_list' %}">Организаторы</a>
+                    </li>
 
                     {% if user.is_authenticated %}
                         {% if user.role == 'inspector' %}

@@ -149,3 +149,9 @@ def hr_inspector_view(request):
     return render(request, 'users/hr_inspector.html', {
         'candidates': candidates.order_by(sort_by),
     })
+
+
+def organizers_list_view(request):
+    # Фильтруем только тех, у кого роль 'organizer'
+    organizers = User.objects.filter(role='organizer')
+    return render(request, 'users/organizers_list.html', {'organizers': organizers})

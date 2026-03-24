@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">📢 Наши организаторы</h2>
+        <span class="badge bg-info px-3 py-2 text-dark">Доверенные лица</span>
+    </div>
+
+    <div class="row">
+        {% for org in organizers %}
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius: 15px;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0">{{ org.get_full_name|default:org.username }}</h5>
+                        <span class="badge bg-warning text-dark">⭐ {{ org.trust_rating }}</span>
+                    </div>
+                    <hr>
+                    <p class="card-text">
+                        <small class="text-muted d-block mb-1">🎁 Обычно дарит:</small>
+                        <span class="text-dark">{{ org.usual_rewards|default:"Призы на уточнении" }}</span>
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <a href="#" class="btn btn-outline-primary btn-sm w-100">Посмотреть отзывы</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">Организаторы пока не зарегистрированы.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
