@@ -38,15 +38,21 @@
                         
                         <hr class="mb-4">
 
-                        {% if user.role == 'organizer' and user == event.organizer %}
+                        {% if user.is_authenticated and user == event.organizer %}
                             <div class="alert alert-info border-0 shadow-sm py-3 mb-0">
                                 <h5 class="alert-heading mb-1">Вы организатор</h5>
-                                <p class="mb-0 small">Управляйте списком участников ниже</p>
+                                <p class="mb-0 small text-muted">Управляйте событием и участниками</p>
+                                
+                                <div class="mt-3 pt-3 border-top">
+                                    <a href="{% url 'events:event_edit' event.pk %}" class="btn btn-primary w-100 shadow-sm">
+                                        ⚙️ Редактировать
+                                    </a>
+                                </div>
                             </div>
                         {% else %}
                             {% if not is_joined %}
                                 <a href="{% url 'events:join_event' event.pk %}" class="btn btn-lg btn-primary w-100 py-3 shadow-sm">
-                                    <i class="fas fa-user-plus me-2"></i> Записаться
+                                    Записаться
                                 </a>
                             {% else %}
                                 {% if user_participation.is_confirmed %}
@@ -54,11 +60,10 @@
                                         <h5 class="alert-heading mb-1">✅ Готово!</h5>
                                         <p class="mb-0 small fw-bold text-success">Участие подтверждено</p>
                                     </div>
-                                    <p class="text-muted small mt-2">Баллы зачислены в ваш профиль</p>
                                 {% else %}
                                     <div class="alert alert-warning border-0 shadow-sm py-3 mb-0">
                                         <h5 class="alert-heading mb-1">⏳ В очереди</h5>
-                                        <p class="mb-0 small text-dark">Ожидайте подтверждения от организатора</p>
+                                        <p class="mb-0 small text-dark">Ожидайте подтверждения</p>
                                     </div>
                                 {% endif %}
                             {% endif %}
@@ -69,8 +74,7 @@
         </div>
     </div>
 
-    {# ПАНЕЛЬ ОРГАНИЗАТОРА ДЛЯ ПОДТВЕРЖДЕНИЯ УЧАСТНИКОВ #}
-    {% if user.role == 'organizer' and user == event.organizer %}
+    {% if user == event.organizer %}
     <div class="card shadow border-0 mt-4">
         <div class="card-header bg-dark text-white py-3">
             <h4 class="mb-0">Управление участниками</h4>

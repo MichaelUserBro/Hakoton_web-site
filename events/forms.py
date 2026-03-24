@@ -8,6 +8,10 @@ class EventForm(forms.ModelForm):
         # Если там 'reward_points', просто переименуй 'points' обратно ниже.
         fields = ['title', 'description', 'location', 'date', 'points', 'event_type']
         
+        # Список полей, которые будут доступны в форме
+        fields = ['title', 'description', 'location', 'date', 'reward_points', 'event_type']
+        
+        # Настройка виджетов для соответствия стилям Bootstrap 5
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control', 
@@ -16,11 +20,11 @@ class EventForm(forms.ModelForm):
             'description': forms.Textarea(attrs={
                 'class': 'form-control', 
                 'rows': 4, 
-                'placeholder': 'Описание...'
+                'placeholder': 'Подробное описание мероприятия...'
             }),
             'location': forms.TextInput(attrs={
                 'class': 'form-control', 
-                'placeholder': 'Место проведения'
+                'placeholder': 'Место проведения (аудитория, адрес или ссылка)'
             }),
             'date': forms.DateTimeInput(attrs={
                 'class': 'form-control', 
@@ -28,13 +32,14 @@ class EventForm(forms.ModelForm):
             }),
             'points': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Количество баллов'
+                'placeholder': 'Например: 100'
             }),
             'event_type': forms.Select(attrs={
                 'class': 'form-select'
             }),
         }
 
+        # Человекочитаемые названия для полей
         labels = {
             'title': 'Название',
             'description': 'Описание',
@@ -42,4 +47,6 @@ class EventForm(forms.ModelForm):
             'date': 'Дата и время',
             'points': 'Баллы',
             'event_type': 'Тип мероприятия',
+            'reward_points': 'Количество баллов',
+            'event_type': 'Категория мероприятия',
         }
