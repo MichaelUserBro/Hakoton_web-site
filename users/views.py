@@ -51,16 +51,30 @@ def profile_view(request):
     })
 
 # 3. Обновленный Рейтинг (6 столбцов: имя, 4 категории, сумма)
+# 3. Обновленный Рейтинг (фильтрация по направлениям)
 def leaderboard_view(request):
-    # Фильтруем только участников (студентов)
-    # Сортируем по убыванию общей суммы баллов (поле 'points')
-    users_top = User.objects.filter(role='participant').order_by('-points')[:100]
-    def leaderboard_view(request):
-    # Оставляем только эту строку: фильтруем участников и сортируем
-        users_top = User.objects.filter(role='participant').order_by('-points')[:100]
+    # Базовый запрос: только участники (студенты)
+    participants = User.objects.filter(role='participant')
+
+    # Формируем 5 разных списков для разных вкладок
+    context = {
+        # Общий топ по всем баллам
+        'users_top': participants.order_by('-points')[:100],
+        
+        # Топ IT (поле points_it)
+        'users_it': participants.order_by('-points_it')[:100],
+        
+        # Топ Социальное (поле points_social)
+        'users_social': participants.order_by('-points_social')[:100],
+        
+        # Топ Проекты (поле points_project)
+        'users_project': participants.order_by('-points_project')[:100],
+        
+        # Топ Медиа (поле points_media)
+        'users_media': participants.order_by('-points_media')[:100],
+    }
     
-        return render(request, 'users/leaderboard.html', {'users_top': users_top})
-    return render(request, 'users/leaderboard.html', {'users_top': users_top})
+    return render(request, 'users/leaderboard.html', context)
 
 # --- БЛОК ИНСПЕКТОРА ---
 
