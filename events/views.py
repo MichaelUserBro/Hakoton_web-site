@@ -1,27 +1,22 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Event
-
-def event_list(request):
-    # Получаем только активные мероприятия, сортируем по дате (ближайшие сверху)
-    events = Event.objects.filter(is_active=True).order_by('date')
-    return render(request, 'events/event_list.html', {'events': events})
-
-
-def event_detail(request, pk):
-    # Находим событие по первичному ключу (pk) или выдаем 404, если его нет
-    event = get_object_or_404(Event, pk=pk)
-    return render(request, 'events/event_detail.html', {'event': event})
-
-from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Event, Participation
 
-@login_required # Только залогиненный пользователь может записаться
+# 1. Список всех мероприятий
+def event_list(request):
+    # Убираем filter(is_active=True) на время теста, чтобы точно увидеть все события из базы
+    events = Event.objects.all().order_by('date')
+    return render(request, 'events/event_list.html', {'events': events})
+
+# 2. Детальная страница мероприятия
+def event_detail(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    return render(request, 'events/event_detail.html', {'event': event})
+
+# 3. Логика записи на мероприятие
+@login_required
 def join_event(request, pk):
     event = get_object_or_404(Event, pk=pk)
-    
-    # Создаем запись об участии, если её еще нет (get_or_create защищает от дублей)
+    # Создаем запись об участии
     Participation.objects.get_or_create(user=request.user, event=event)
-    
-    # После записи возвращаем пользователя на страницу этого мероприятия
     return redirect('events:event_detail', pk=pk)

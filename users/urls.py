@@ -1,9 +1,17 @@
 from django.urls import path
 from . import views
 
+# app_name позволяет нам обращаться к ссылкам как 'users:profile' или 'users:register'
 app_name = 'users'
 
 urlpatterns = [
+    # Личный кабинет
     path('profile/', views.profile_view, name='profile'),
-    path('leaderboard/', views.leaderboard_view, name='leaderboard'), # Добавь эту строку
+    
+    # Рейтинг (Таблица лидеров)
+    path('leaderboard/', views.leaderboard_view, name='leaderboard'),
+    
+    # Регистрация
+    # .as_view() нужен, так как SignUpView — это класс, а не обычная функция
+    path('register/', views.SignUpView.as_view(), name='register'),
 ]
