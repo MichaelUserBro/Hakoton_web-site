@@ -7,4 +7,5 @@ urlpatterns = [
     # Главная страница приложения events
     path('', views.event_list, name='event_list'),
     path('<int:pk>/', views.event_detail, name='event_detail'),
+    path('<int:pk>/join/', views.join_event, name='join_event'), # Новая строка
 ]
